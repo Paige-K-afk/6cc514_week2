@@ -43,6 +43,7 @@ cons_writeline:
     call    cons_write_crlf
     ret    
 
+
 real_start:
     cli                         # BIOS enabled interrupts; disable
 
@@ -69,6 +70,14 @@ real_start:
 	cmpb	$7, %al				# AL returns the number of sectors read.  If this is not 7, report an error
 	jne		read_failed
 
+    # check that what has been loaded contains code
+    # test the byte that was loaded at 0x9000 to ensure that it is non-zero
+    cmp     $0, (%bx)   # if we look up, we can see $0x9000 is already stored in %bx, 
+                        # so we use () to dereference the pointer to access the actual contents of the register.
+    jne     loaded_sucsess
+    jmp    load_failed
+
+loaded_sucsess:
  	movb	(boot_device), %dl	# Pass boot device ID to second stage
     movw    $0x9000, %ax        # Jump to stage 2
     jmp     *%ax
@@ -78,6 +87,13 @@ read_failed:	                # Display error messages
     call    cons_writeline
 	
 	mov 	$cannot_continue, %si	
+    call    cons_writeline
+    jmp     endless_loop
+
+load_failed:                    # Display error messages
+    movw    $load_failed_msg,  %si
+    call    cons_writeline
+    mov 	$cannot_continue, %si	
     call    cons_writeline
 	
 endless_loop:                   # Loop forever more
@@ -92,6 +108,8 @@ boot_message:
     .string "Boot Loader V1.0"             
 read_failed_msg:
     .string "Unable to read stage 2 of the boot process"
+load_failed_msg:
+    .string "Failed. Loaded Sectors were empty"
 cannot_continue:
     .string "Cannot continue boot process"
 
