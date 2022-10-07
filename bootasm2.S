@@ -44,13 +44,20 @@ cons_writeline:
 display_disk_message:
     movw    $reading_from_disk_drive_msg, %si  # Send in disk drive message
     jmp display_messages_decided
+floppy_message:
+    movw    $reading_from_floppy_msg, %si  # Send in floppy disk message
+    jmp display_messages_decided
 
 real_start:
     movw    $second_stage_msg, %si  # Display our Second Stage message
     call    cons_writeline
+    # mov $1, %dl # FUDGING A FLOPPY DISK (do nor uncomment this is here for testing)
     cmp     $0, %dl
-    jnz display_disk_message    # to hard disk
-    movw    $reading_from_floppy_msg, %si  # Send in floppy disk message
+    jz floppy_message
+    cmp     $1, %dl
+    jz floppy_message
+    cmp $0x80, %dl
+    jge display_disk_message    # to hard disk
 display_messages_decided:
     call    cons_writeline
 
