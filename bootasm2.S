@@ -41,9 +41,28 @@ cons_writeline:
     call    cons_write_crlf
     ret    
 
+display_disk_message:
+    movw    $reading_from_disk_drive_msg, %si  # Send in disk drive message
+    jmp display_messages_decided
+
 real_start:
     movw    $second_stage_msg, %si  # Display our Second Stage message
     call    cons_writeline
+    cmp     $0, %dl
+    jnz display_disk_message    # to hard disk
+    movw    $reading_from_floppy_msg, %si  # Send in floppy disk message
+display_messages_decided:
+    call    cons_writeline
+
+    # where things will continue from.
+
+endless_loop:                   # Loop forever more
+    jmp     endless_loop   
 
 second_stage_msg:
 .string "Second Stage V1.0"
+
+reading_from_floppy_msg:
+.string "Reading From Floppy Disk"
+reading_from_disk_drive_msg:
+.string "Reading From Disk Drive"

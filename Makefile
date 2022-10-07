@@ -68,7 +68,7 @@ bootblock: bootasm.S
 
 bootblock2: bootasm2.S 
 	$(CC) $(CFLAGS) -fno-pic -nostdinc -I. -c bootasm2.S
-	$(LD) $(LDFLAGS) -N -e start -Ttext 0x9000 -o bootblock2.o bootasm.o 
+	$(LD) $(LDFLAGS) -N -e start -Ttext 0x9000 -o bootblock2.o bootasm2.o 
 	$(OBJCOPY) -S -O binary -j .text bootblock2.o bootblock2
 	./sign.pl bootblock2
 
@@ -77,7 +77,7 @@ bootblock2: bootasm2.S
 
 clean: 
 	rm -f *.tex *.dvi *.idx *.aux *.log *.ind *.ilg \
-	*.o *.d *.asm *.sym vectors.S bootblock entryother \
+	*.o *.d *.asm *.sym vectors.S bootblock bootblock2 entryother \
 	initcode initcode.out kernel xv6.img fs.img kernelmemfs \
 	xv6memfs.img mkfs \
 	syscall.h syscalltable.h usys.S 
