@@ -43,21 +43,24 @@ cons_writeline:
 
 display_disk_message:
     movw    $reading_from_disk_drive_msg, %si  # Send in disk drive message
-    jmp display_messages_decided
+    jmp     display_messages_decided
 floppy_message:
     movw    $reading_from_floppy_msg, %si  # Send in floppy disk message
-    jmp display_messages_decided
+    jmp     display_messages_decided
 
 real_start:
+    movb    %dl,    (boot_device)
     movw    $second_stage_msg, %si  # Display our Second Stage message
-    call    cons_writeline
+    call            cons_writeline
     # mov $1, %dl # FUDGING A FLOPPY DISK (do nor uncomment this is here for testing)
-    cmp     $0, %dl
-    jz floppy_message
-    cmp     $1, %dl
-    jz floppy_message
-    cmp $0x80, %dl
-    jge display_disk_message    # to hard disk
+
+    movb    (boot_device), %dl
+    cmp     $0,     %dl
+    jz      floppy_message
+    cmp     $1,     %dl
+    jz      floppy_message
+    cmp     $0x80,  %dl
+    jge     display_disk_message    # to hard disk
 display_messages_decided:
     call    cons_writeline
 
@@ -67,9 +70,11 @@ endless_loop:                   # Loop forever more
     jmp     endless_loop   
 
 second_stage_msg:
-.string "Second Stage V1.0"
+    .string "Second Stage V1.0"
 
 reading_from_floppy_msg:
-.string "Reading From Floppy Disk"
+    .string "Reading From Floppy Disk"
 reading_from_disk_drive_msg:
-.string "Reading From Disk Drive"
+    .string "Reading From Disk Drive"
+boot_device:
+    .byte 0

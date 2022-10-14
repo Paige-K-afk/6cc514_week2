@@ -72,7 +72,7 @@ real_start:
 
     # check that what has been loaded contains code
     # test the byte that was loaded at 0x9000 to ensure that it is non-zero
-    cmp     $0, (%bx)   # if we look up, we can see $0x9000 is already stored in %bx, 
+    cmp     $0, %bx   # if we look up, we can see $0x9000 is already stored in %bx, 
                         # so we use () to dereference the pointer to access the actual contents of the register.
     jne     loaded_sucsess
     jmp    load_failed
